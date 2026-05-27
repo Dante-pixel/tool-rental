@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ tool.title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .product-img { max-height: 450px; object-fit: contain; background: white; }
+        .price-big { color: #0d6efd; font-weight: bold; font-size: 2.2rem; }
+
+        /* ЗЕЛЕНАЯ КНОПКА ПОД ЦВЕТ WHATSAPP И УСПЕШНОЙ ПОКУПКИ */
+        .btn-whatsapp-cart { background-color: #25D366; color: white; font-weight: bold; transition: 0.3s; border: none; }
+        .btn-whatsapp-cart:hover { background-color: #20ba5a; color: white; transform: scale(1.02); }
+
+        /* ИЗМЕНИЛИ КНОПКУ КОРЗИНЫ В ШАПКЕ НА ЗЕЛЕНУЮ */
+        .btn-success { background-color: #25D366; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-success:hover { background-color: #20ba5a; }
+
+        .info-section { line-height: 1.7; color: #444; }
+
+        /* КРАСИВЫЕ СТИЛИ ДЛЯ МИНИАТЮР ГАЛЕРЕИ */
+        .thumb-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+        }
+        .thumb-img:hover { border-color: #25D366; opacity: 0.8; }
+        .thumb-active { border-color: #25D366 !important; box-shadow: 0 0 5px rgba(37, 211, 102, 0.5); }
+
+        /* СТИЛИ ДЛЯ СОВРЕМЕННОЙ ШАПКИ */
+        .top-bar { background-color: #1a1a1a; font-size: 0.85rem; }
+        .navbar-brand .logo-title { font-size: 1.6rem; letter-spacing: 0.5px; }
+        .navbar-brand .logo-subtitle { font-size: 0.75rem; color: #6c757d; display: block; margin-top: -3px; }
+        .btn-whatsapp { color: #25D366; font-weight: bold; text-decoration: none; transition: 0.2s; }
+        .btn-whatsapp:hover { color: #20ba5a; }
+        .nav-search .form-control { border-radius: 6px 0 0 6px; }
+        .nav-search .btn { border-radius: 0 6px 6px 0; background-color: #212529; color: white; border: none; }
+        .nav-search .btn:hover { background-color: #424649; }
+        .badge-cart { font-size: 0.75rem; padding: 0.35em 0.65em; }
+    </style>
+</head>
+<body class="bg-light">
+
+<header class="bg-white shadow-sm sticky-top mb-4">
+    <div class="top-bar text-white py-2">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="me-3">📍 г. Бишкек, ул. Лермонтова 68</span>
+                <span class="text-white-50">🕒 Пн-Сб: 08:00 – 18:00</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="https://wa.me/996508508500" class="btn-whatsapp d-flex align-items-center gap-1" target="_blank">
+                    <span>🟢</span> WhatsApp
+                </a>
+                <a href="tel:+996702747714" class="text-white text-decoration-none fw-bold">
+                    📞 0508508500
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light py-3">
+        <div class="container">
+            <a class="navbar-brand d-inline-block" href="/">
+                <span class="fw-bold text-dark logo-title">PROKAT-INSTRUMENT.KG</span>
+                <span class="logo-subtitle">Аренда инструментов и строительного оборудования</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#headerNavbar" aria-controls="headerNavbar" aria-expanded="false" aria-label="Переключатель навигации">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="headerNavbar">
+                <form class="d-flex mx-auto my-3 my-lg-0 nav-search" style="width: 100%; max-width: 420px;" action="/search/" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Поиск инструментов (например: коронка)..." aria-label="Поиск">
+                        <button class="btn px-3" type="submit">🔍</button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav mb-2 mb-lg-0 me-3 fw-semibold gap-1">
+                    <li class="nav-item"><a class="nav-link text-dark" href="/">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/условия/">Условия</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/контакты/">Контакты</a></li>
+                </ul>
+
+                <a href="{% url 'cart_detail' %}" class="btn btn-success px-3 py-2 d-flex align-items-center gap-2 shadow-sm text-uppercase" style="font-size: 0.9rem;">
+                    <span>🛒 Корзина</span>
+                    <span class="badge bg-dark text-white rounded-pill badge-cart">
+                        {% if request.session.cart %}{{ request.session.cart|length }}{% else %}0{% endif %}
+                    </span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container bg-white p-4 rounded shadow-sm">
+    <div class="row">
+        <div class="col-md-6 text-center border-end">
+            {% if tool.image %}
+                <div class="mb-3">
+                    <img src="{{ tool.image.url }}" id="mainImage" class="img-fluid product-img rounded" alt="{{ tool.title }}">
+                </div>
+
+                <div class="d-flex justify-content-start flex-wrap gap-2 mt-3 ps-2">
+                    <img src="{{ tool.image.url }}" class="img-thumbnail thumb-img thumb-active" onclick="changeImage(this, '{{ tool.image.url }}')">
+
+                    {% for item in tool.images.all %}
+                        {% if item.image.url != tool.image.url %}
+                            <img src="{{ item.image.url }}" class="img-thumbnail thumb-img" onclick="changeImage(this, '{{ item.image.url }}')">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6 ps-md-5">
+            <h1 class="fw-bold">{{ tool.title }}</h1>
+
+            <p class="text-muted mt-2">{{ tool.description }}</p>
+
+           <form action="{% url 'add_to_cart' tool.id %}" method="POST">
+                {% csrf_token %}
+                <div class="p-3 border rounded mb-4 bg-light shadow-sm">
+
+                    {% if tool.tariffs.all %}
+                        <div class="mb-3">
+                            <label class="fw-bold mb-2 text-primary small text-uppercase">Выберите срок аренды</label>
+                            <select class="form-select border-primary" id="tariffSelect" name="tariff_id" onchange="updatePrice()" required>
+                                {% for tariff in tool.tariffs.all %}
+                                    <option value="{{ tariff.id }}" data-price="{{ tariff.price }}" {% if forloop.first %}selected{% endif %}>
+                                        {{ tariff.time_period }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    {% if "коронк" in tool.category.name.lower or tool.variants.all %}
+                        <div class="mb-3">
+                            <label class="fw-bold mb-2 text-secondary small text-uppercase">Выберите диаметр</label>
+                            <select class="form-select" id="variantSelect" name="variant_id" onchange="updatePrice()">
+                                {% for variant in tool.variants.all %}
+                                    <option value="{{ variant.id }}"
+                                            data-price="{% if variant.price and variant.price != 'None' %}{{ variant.price }}{% else %}{{ tool.price_per_day }}{% endif %}"
+                                            data-img="{% if variant.variant_image %}{{ variant.variant_image.url }}{% else %}{{ tool.image.url }}{% endif %}"
+                                            {% if forloop.first %}selected{% endif %}>
+                                        {{ variant.size_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    {% if not tool.tariffs.all and not tool.variants.all %}
+                        <div class="mb-3">
+                            <span class="badge bg-dark px-3 py-2 text-uppercase">Стандартная комплектация</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <div id="priceDisplay" class="price-big">
+                            {% if not tool.tariffs.all and not tool.variants.all %}
+                                {{ tool.price_per_day }} сом
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="number" name="quantity" class="form-control text-center" value="1" min="1" style="width: 80px; height: 46px;">
+                        <button type="submit" class="btn btn-whatsapp-cart btn-lg px-4 py-2 fw-bold text-uppercase w-100 shadow-sm">В КОРЗИНУ</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="small text-muted mt-3">
+                <p class="mb-1">Для бронирования звоните: <strong>0508508500</strong></p>
+                <p class="mb-1">Категория: {{ tool.category.name }}</p>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="row info-section">
+        <div class="col-lg-8">
+            <h3 class="fw-bold mb-4 text-uppercase">Описание услуги</h3>
+            {{ tool.full_description|safe|linebreaks }}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function updatePrice() {
+    const tariffSelect = document.getElementById('tariffSelect');
+    const variantSelect = document.getElementById('variantSelect');
+    const priceDisplay = document.getElementById('priceDisplay');
+    const mainImage = document.getElementById('mainImage');
+
+    // Сначала смотрим на выбранный тариф (срок аренды)
+    if (tariffSelect) {
+        const selectedTariff = tariffSelect.options[tariffSelect.selectedIndex];
+        const tariffPrice = selectedTariff.getAttribute('data-price');
+        if (tariffPrice) {
+            priceDisplay.innerText = tariffPrice + " сом";
+            return;
+        }
+    }
+
+    // Если тарифов нет, но есть варианты размеров/диаметров
+    if (variantSelect) {
+        const selectedVariant = variantSelect.options[variantSelect.selectedIndex];
+        const variantPrice = selectedVariant.getAttribute('data-price');
+        const imgUrl = selectedVariant.getAttribute('data-img');
+
+        if (variantPrice && variantPrice !== 'None' && variantPrice !== '0') {
+            priceDisplay.innerText = variantPrice + " сом";
+        }
+
+        if (imgUrl && mainImage && !imgUrl.includes('None') && imgUrl !== '') {
+            mainImage.src = imgUrl;
+        }
+    }
+}
+
+function changeImage(element, src) {
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage) {
+        mainImage.src = src;
+    }
+    document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('thumb-active'));
+    element.classList.add('thumb-active');
+}
+
+// Вычисляем корректную цену сразу при открытии карточки
+document.addEventListener("DOMContentLoaded", function() {
+    updatePrice();
+});
+</script>
+
+</body>
+</html>

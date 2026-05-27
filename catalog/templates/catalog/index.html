@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аренда инструментов Бишкек — PROKAT-INSTRUMENT.KG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.old.css' %}">
+    <style>
+        /* СТИЛИ ДЛЯ ШАПКИ САЙТА */
+        .top-bar { background-color: #1a1a1a; font-size: 0.85rem; }
+        .navbar-brand .logo-title { font-size: 1.6rem; letter-spacing: 0.5px; }
+        .navbar-brand .logo-subtitle { font-size: 0.75rem; color: #6c757d; display: block; margin-top: -3px; }
+        .btn-whatsapp { color: #25D366; font-weight: bold; text-decoration: none; transition: 0.2s; }
+        .btn-whatsapp:hover { color: #20ba5a; }
+        .nav-search .form-control { border-radius: 6px 0 0 6px; }
+        .nav-search .btn { border-radius: 0 6px 6px 0; background-color: #ff9800; color: white; border: none; }
+        .nav-search .btn:hover { background-color: #e68900; }
+        .btn-orange { background-color: #0d6efd; color: white; font-weight: bold; transition: 0.3s; border: none; }
+.btn-orange:hover { background-color: #0b5ed7; color: white; }
+
+        /* СТИЛИ КАТАЛОГА И САЙДБАРА */
+        .sidebar { background: #f8f9fa; padding: 20px; border-radius: 10px; min-height: 80vh; }
+        .category-link { text-decoration: none; color: #333; display: block; padding: 8px 10px; border-radius: 5px; margin-bottom: 5px; font-size: 0.95rem; }
+        .category-link:hover { background: #e9ecef; color: #ff9800; }
+        .category-link.active { background: #ff9800; color: white; }
+        .tool-card { transition: 0.3s; border-radius: 12px; overflow: hidden; }
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important; }
+        .tool-card img { height: 180px; object-fit: contain; background: #fff; padding: 10px; cursor: pointer; }
+        .tool-title-link { text-decoration: none; color: inherit; }
+        .tool-title-link:hover { color: #ff9800; }
+        .sub-link { font-size: 0.85rem; padding: 4px 10px; color: #666; transition: 0.2s; text-decoration: none; display: block; border-radius: 4px; }
+        .sub-link:hover { color: #ff9800; background: #e9ecef; padding-left: 15px; }
+        .sub-link.active-sub { color: #ff9800 !important; font-weight: bold; background: #e9ecef; }
+    </style>
+</head>
+<body class="bg-light">
+
+<header class="bg-white shadow-sm sticky-top mb-4">
+
+    <div class="top-bar text-white py-2">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="me-3">📍 г. Бишкек, ул. Абая 77</span>
+                <span class="text-white-50">🕒 Пн-Сб: 08:00 – 18:00</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="https://wa.me/996508508500" class="btn-whatsapp d-flex align-items-center gap-1" target="_blank">
+                    <span>🟢</span> WhatsApp
+                </a>
+                <a href="tel:+996702747714" class="text-white text-decoration-none fw-bold">
+                    📞 0508508500
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light py-3">
+        <div class="container">
+
+            <a class="navbar-brand d-inline-block" href="/">
+                <span class="fw-bold text-dark logo-title">PROKAT-INSTRUMENT.KG</span>
+                <span class="logo-subtitle">Аренда инструментов и строительного оборудования</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#headerNavbar" aria-controls="headerNavbar" aria-expanded="false" aria-label="Переключатель навигации">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="headerNavbar">
+
+                <form class="d-flex mx-auto my-3 my-lg-0 nav-search" style="width: 100%; max-width: 420px;" action="/search/" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Поиск инструментов (например: коронка)..." aria-label="Поиск">
+                        <button class="btn px-3" type="submit">🔍</button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav mb-2 mb-lg-0 me-3 fw-semibold gap-1">
+                    <li class="nav-item"><a class="nav-link text-dark" href="{% url 'index' %}">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="{% url 'условия' %}">Условия</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="{% url 'контакты' %}">Контакты</a></li>
+                </ul>
+
+<a href="{% url 'cart_detail' %}" class="btn btn-success px-3 py-2 d-flex align-items-center gap-2 shadow-sm text-uppercase" style="font-size: 0.9rem;">
+    <span>🛒 Корзина</span>
+    <span class="badge bg-dark text-white rounded-pill">
+        {% if request.session.cart %}{{ request.session.cart|length }}{% else %}0{% endif %}
+    </span>
+</a>
+
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="sidebar shadow-sm border bg-white">
+                <h5 class="mb-3 fw-bold text-center border-bottom pb-2">Категории</h5>
+                <a href="/" class="category-link {% if not current_category and not request.GET.subcategory %}active{% endif %} mb-3">🏠 Все инструменты</a>
+
+                {% for cat in categories %}
+                    <div class="mb-2">
+                        <a href="/?category={{ cat.id }}"
+                           class="category-link {% if current_category == cat.id %}active{% endif %} fw-bold">
+                           ▶ {{ cat.name }}
+                        </a>
+
+                        {% if cat.subcategories.all %}
+                            <div class="ps-3 border-start ms-2 mt-1 mb-2">
+                                {% for sub in cat.subcategories.all %}
+                                    <a href="/?subcategory={{ sub.id }}"
+                                       class="sub-link {% if request.GET.subcategory == sub.id|stringformat:'i' %}active-sub{% endif %}">
+                                       ⚫ {{ sub.name }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row row-cols-2 row-cols-md-3 g-2 g-md-4">
+                {% for tool in tools %}
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm tool-card">
+                        <a href="{% url 'tool_detail' tool.pk %}">
+                            {% if tool.image %}
+                                <img src="{{ tool.image.url }}" class="card-img-top" alt="{{ tool.title }}">
+                            {% else %}
+                                <div class="bg-secondary text-white text-center py-5" style="height: 180px;">Нет фото</div>
+                            {% endif %}
+                        </a>
+
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold mb-2">
+                                <a href="{% url 'tool_detail' tool.pk %}" class="tool-title-link">
+                                    {{ tool.title }}
+                                </a>
+                            </h6>
+
+                            <div class="mb-2">
+                                <span class="text-primary fw-bold fs-5">{{ tool.price_per_day }}</span>
+                            </div>
+
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="{% url 'tool_detail' tool.pk %}" class="btn btn-orange btn-sm text-uppercase py-2">Подробнее / Размер</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">В этой категории пока нет инструментов.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 py-5 bg-dark text-white">
+    <div class="container text-center text-md-start">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5 class="fw-bold text-warning">PROKAT-INSTRUMENT.KG</h5>
+                <p class="small text-secondary">Лучший прокат строительного оборудования и профессионального инструмента в Бишкеке.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="fw-bold">Контакты</h5>
+                <p class="mb-1 small">📍 Бишкек, ул. Лермонтова 68</p>
+                <p class="mb-1 small">📞 0508508500</p>
+                <p class="small text-success">🟢 WhatsApp: 0508508500</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold">График работы</h5>
+                <p class="mb-1 small">Пн-Сб: 08:00 – 18:00</p>
+                <p class="small">Вс: Выходной</p>
+            </div>
+        </div>
+        <hr class="border-secondary">
+        <p class="mb-0 small text-center text-secondary">© 2026 PROKAT-INSTRUMENT.KG. Все права защищены</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

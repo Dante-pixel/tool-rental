@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ваша корзина — PROKAT-INSTRUMENT.KG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .top-bar { background-color: #1a1a1a; font-size: 0.85rem; }
+        .navbar-brand .logo-title { font-size: 1.6rem; letter-spacing: 0.5px; }
+        .navbar-brand .logo-subtitle { font-size: 0.75rem; color: #6c757d; display: block; margin-top: -3px; }
+        .btn-whatsapp { color: #25D366; font-weight: bold; text-decoration: none; transition: 0.2s; }
+        .btn-whatsapp:hover { color: #20ba5a; }
+        .btn-orange { background-color: #ff9800; color: white; font-weight: bold; transition: 0.3s; border: none; }
+        .btn-orange:hover { background-color: #e68900; color: white; }
+        .nav-search .form-control { border-radius: 6px 0 0 6px; }
+        .nav-search .btn { border-radius: 0 6px 6px 0; background-color: #ff9800; color: white; border: none; }
+        .nav-search .btn:hover { background-color: #e68900; }
+
+        .btn-wa-order { background-color: #25D366; color: white; font-weight: bold; font-size: 1.1rem; transition: 0.3s; border: none; }
+        .btn-wa-order:hover { background-color: #20ba5a; color: white; transform: scale(1.02); }
+    </style>
+</head>
+<body class="bg-light">
+
+<header class="bg-white shadow-sm sticky-top mb-4">
+    <div class="top-bar text-white py-2">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="me-3">📍 г. Бишкек, ул. Лермонтова 68</span>
+                <span class="text-white-50">🕒 Пн-Сб: 08:00 – 18:00</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="https://wa.me/996508508500" class="btn-whatsapp d-flex align-items-center gap-1" target="_blank">
+                    <span>🟢</span> WhatsApp
+                </a>
+                <a href="tel:+996508508500" class="text-white text-decoration-none fw-bold">
+                    📞 0508508500
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light py-3">
+        <div class="container">
+            <a class="navbar-brand d-inline-block" href="/">
+                <span class="fw-bold text-dark logo-title">PROKAT-INSTRUMENT.KG</span>
+                <span class="logo-subtitle">Аренда инструментов и строительного оборудования</span>
+            </a>
+            <div class="collapse navbar-collapse" id="headerNavbar">
+                <form class="d-flex mx-auto my-3 my-lg-0 nav-search" style="width: 100%; max-width: 420px;" action="/search/" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Поиск инструментов..." aria-label="Поиск">
+                        <button class="btn px-3" type="submit">🔍</button>
+                    </div>
+                </form>
+                <a href="/" class="btn btn-outline-dark btn-sm fw-bold text-uppercase">← В каталог</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">🛒 Корзина товаров</h2>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    {% if cart %}
+                        {% for key, item in cart.items %}
+                        <div class="d-flex align-items-center border-bottom py-3">
+                            {% if item.image %}
+                                <img src="{{ item.image }}" style="width: 80px; height: 80px; object-fit: contain;" class="me-3 rounded shadow-sm">
+                            {% else %}
+                                <div class="bg-light rounded text-muted d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px; font-size: 0.7rem;">Нет фото</div>
+                            {% endif %}
+
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0 text-dark">{{ item.title }}</h6>
+                                <small class="text-muted">Вариант/Срок: <strong class="text-secondary">{{ item.size }}</strong></small>
+                                <div class="d-block mt-1">
+                                    <span class="badge bg-secondary">{{ item.quantity }} шт. × {{ item.price }} сом</span>
+                                </div>
+                            </div>
+                            <div class="fw-bold text-primary fs-5">
+                                {% widthratio item.price 1 item.quantity %} сом
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="mt-4">
+                            <a href="{% url 'clear_cart' %}" class="btn btn-sm btn-outline-danger px-3">🗑️ Очистить корзину</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <span style="font-size: 3rem;">📥</span>
+                            <h5 class="fw-bold text-muted mt-3">Ваша корзина пуста</h5>
+                            <a href="/" class="btn btn-orange text-uppercase mt-2">Перейти в каталог</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if cart %}
+                <a href="/" class="btn btn-link mt-3 text-decoration-none text-secondary p-0">← Вернуться к покупкам</a>
+            {% endif %}
+        </div>
+
+        {% if cart %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 bg-white p-4 sticky-top" style="top: 130px;">
+                <h5 class="text-muted small text-uppercase fw-bold mb-2">Итого к оплате:</h5>
+                <h2 class="text-primary fw-bold mb-4">{{ total_price }} сом</h2>
+                <hr class="mb-4">
+
+                <form action="{% url 'cart_detail' %}" method="POST" id="orderForm">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary text-uppercase">Ваше Имя *</label>
+                        <input type="text" name="customer_name" class="form-control form-control-lg border-2" placeholder="Например: Улан" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary text-uppercase">Номер телефона *</label>
+                        <input type="tel" name="customer_phone" class="form-control form-control-lg border-2" value="+996" placeholder="+996 XXX XX XX XX" required>
+                    </div>
+
+                    <!-- ВЫБОР ВАРИАНТА ОФОРМЛЕНИЯ И ОПЛАТЫ -->
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <label class="form-label small fw-bold text-secondary text-uppercase d-block mb-3">Способ оформления</label>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="methodWhatsapp" value="whatsapp" checked onchange="togglePaymentMethod()">
+                            <label class="form-check-label fw-bold text-dark" for="methodWhatsapp" style="cursor: pointer;">
+                                💬 Заказать через WhatsApp
+                            </label>
+                            <div class="small text-muted ms-1">Менеджер свяжется с вами в чате</div>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="methodVisa" value="visa" onchange="togglePaymentMethod()">
+                            <label class="form-check-label fw-bold text-dark" for="methodVisa" style="cursor: pointer;">
+                                💳 Картой Visa / Элкарт онлайн
+                            </label>
+                            <div class="small text-muted ms-1">Безопасная оплата через Freedom Pay</div>
+                        </div>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger small py-2 mb-3">{{ error }}</div>
+                    {% endif %}
+
+                    <!-- ИНТЕРАКТИВНАЯ КНОПКА -->
+                    <button type="submit" id="submitBtn" class="btn btn-wa-order btn-lg w-100 py-3 shadow d-flex align-items-center justify-content-center gap-2">
+                        <span id="btnIcon">💬</span> <span id="btnText">ОФОРМИТЬ В WHATSAPP</span>
+                    </button>
+                </form>
+
+                <p class="small text-muted mt-3 text-center mb-0">
+                    Данные сохранятся в системе для автоматической обработки вашей заявки.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Скрипт кастомизации кнопки под выбранный тип оплаты -->
+<script>
+function togglePaymentMethod() {
+    const isVisa = document.getElementById('methodVisa').checked;
+    const submitBtn = document.getElementById('submitBtn');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnText = document.getElementById('btnText');
+
+    if (isVisa) {
+        submitBtn.style.backgroundColor = '#ff9800';
+        submitBtn.style.color = '#ffffff';
+        submitBtn.onmouseover = function() { this.style.backgroundColor = '#e68900'; };
+        submitBtn.onmouseout = function() { this.style.backgroundColor = '#ff9800'; };
+
+        btnIcon.innerText = '🔒';
+        btnText.innerText = 'ОПЛАТИТЬ КАРТОЙ';
+    } else {
+        submitBtn.style.backgroundColor = '#25D366';
+        submitBtn.style.color = '#ffffff';
+        submitBtn.onmouseover = function() { this.style.backgroundColor = '#20ba5a'; };
+        submitBtn.onmouseout = function() { this.style.backgroundColor = '#25D366'; };
+
+        btnIcon.innerText = '💬';
+        btnText.innerText = 'ОФОРМИТЬ В WHATSAPP';
+    }
+}
+document.addEventListener("DOMContentLoaded", togglePaymentMethod);
+</script>
+</body>
+</html>

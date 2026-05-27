@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <p>Перенаправление на страницу оплаты...</p>
+    <form id="payForm" method="POST" action="https://api.freedompay.kg/init_payment.php">
+        {% for key, value in params.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+    </form>
+    <script>
+        // Автоматически отправляем форму при загрузке страницы
+        document.getElementById('payForm').submit();
+    </script>
+</body>
+</html>

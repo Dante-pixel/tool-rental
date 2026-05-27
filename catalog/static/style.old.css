@@ -1,0 +1,48 @@
+/* --- АДАПТИВКА ДЛЯ ТЕЛЕФОНОВ --- */
+@media (max-width: 767px) {
+
+    /* 1. Делаем товары по 2 в ряд */
+    .row-cols-md-3 {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    .row-cols-md-3 > .col {
+        flex: 0 0 50% !important; /* 50% ширины = 2 товара в ряд */
+        max-width: 50% !important;
+    }
+
+    /* 2. Уменьшаем отступы и размеры для компактности */
+    .g-4, .g-md-4 {
+        --bs-gutter-x: 0.5rem !important; /* Уменьшаем расстояние между товарами */
+        --bs-gutter-y: 0.5rem !important;
+    }
+
+    .tool-card img {
+        height: 100px !important; /* Уменьшаем высоту картинки */
+        padding: 5px !important;
+    }
+
+    .card-body {
+        padding: 5px !important;
+    }
+
+    .card-title {
+        font-size: 0.75rem !important; /* Уменьшаем шрифт заголовка */
+    }
+
+    .btn-orange {
+        font-size: 0.7rem !important;
+        padding: 5px !important;
+    }
+
+    /* 3. Скрываем сайдбар на мобильном, чтобы не занимал место */
+    .col-md-3 {
+        display: none !important;
+    }
+
+    /* 4. Настраиваем контейнер */
+    .container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
