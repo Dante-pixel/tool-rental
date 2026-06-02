@@ -1,0 +1,61 @@
+import hashlib
+from django.conf import settings
+import requests
+import xml.etree.ElementTree as ET
+
+def generate_freedom_pay_url(order_id, amount, description, user_phone, user_email):
+    """
+    Генерирует ссылку для перенаправления клиента на оплату во Freedom Pay
+    """
+    # 1. Собираем базовые параметры платежа согласно документации
+    params = {
+        'pg_merchant_id': settings.FREEDOM_PAY_MERCHANT_ID,
+        'pg_order_id': str(order_id),
+        'pg_amount': str(amount),
+        'pg_currency': 'KGS',  # Валюта — строго Сом
+        'pg_description': description,
+        'pg_salt': 'some_random_salt_123',  # Случайная строка для защиты
+        'pg_user_phone': str(user_phone),
+        'pg_user_contact_email': user_email,
+        # Ссылки возврата, которые мы настроили в ЛК Freedom Pay
+        'pg_success_url': 'https://instrumenty312.kg/payments/success/',
+        'pg_failure_url': 'https://instrumenty312.kg/payments/failure/',
+    }
+
+    # 2. Сортируем ключи по алфавиту (требование Freedom Pay для генерации подписи)
+    sorted_keys = sorted(params.keys())
+    
+    # 3. Формируем строку для подписи: имя_скрипта + значения_параметров + secret_key
+    # Имя скрипта инициализации — init_payment.php
+    sign_string = 'init_payment.php;'
+    for key in sorted_keys:
+        sign_string += f'{params[key]};'
+    sign_string += settings.FREEDOM_PAY_SECRET_KEY
+
+    # 4. Хешируем строку в MD5
+    pg_sig = hashlib.md5(sign_string.encode('utf-8')).hexdigest()
+    
+    # Добавляем готовую подпись в параметры
+    params['pg_sig'] = pg_sig
+
+    # 5. Делаем запрос к Freedom Pay для получения платежной ссылки
+    try:
+        response = requests.post(settings.FREEDOM_PAY_URL, data=params, timeout=10)
+        if response.status_code == 200:
+            # Freedom Pay возвращает ответ в формате XML
+            root = ET.fromstring(response.content)
+            status = root.find('pg_status').text
+            
+            if status == 'ok':
+                # Вытаскиваем ссылку на платежную форму
+                redirect_url = root.find('pg_redirect_url').text
+                return redirect_url
+            else:
+                error_description = root.find('pg_error_description').text
+                print(f"Ошибка Freedom Pay: {error_description}")
+                return None
+    except Exception as e:
+        print(f"Ошибка подключения к Freedom Pay: {e}")
+        return None
+    
+    return None

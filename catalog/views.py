@@ -7,11 +7,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from .models import Tool, Category, ToolVariant, RentalTariff, Order, OrderItem
 
-# Настройки Freedom Pay. На проде настоятельно рекомендуется вынести в .env!
-MERCHANT_ID = 'ТВОЙ_ID_МЕРЧАНТА_ИЗ_ЛИЧНОГО_КАБИНЕТА'
-SECRET_KEY = 'ТВОЙ_СЕКРЕТНЫЙ_КЛЮЧ_ИЗ_ЛИЧНОГО_КАБИНЕТА'
+# Настройки Freedom Pay автоматически берутся из settings.py
+MERCHANT_ID = settings.FREEDOM_PAY_MERCHANT_ID
+SECRET_KEY = settings.FREEDOM_PAY_SECRET_KEY
 
 
 def generate_signature(script_name, params, secret_key):
@@ -114,47 +115,41 @@ def cart_detail(request):
         payment_method = request.POST.get('payment_method', 'whatsapp')
 
         if payment_method == 'visa':
-            # --- СЦЕНАРИЙ А: ОНЛАЙН ОПЛАТА КАРТОЙ (FREEDOM PAY) ---
+            # --- СЦЕНАРИЙ А: КЛИЕНТСКАЯ ОТПРАВКА ФОРМЫ (ОБХОД БЛОКИРОВОК IP И CLOUDFLARE) ---
             script_name = "init_payment.php"
-            url = f"https://api.freedompay.money/{script_name}"
 
-            # Очищаем корзину сессии ПЕРЕД переходом на страницу успеха
-            request.session['cart'] = {}
-            request.session.modified = True
+            # Базовый стабильный эндпоинт для отправки из браузера
+            url = "https://api.paybox.money/init_payment.php"
 
-            # Формируем параметры инициации транзакции (для будущего использования)
+            # Формируем параметры для платежного шлюза
             params = {
-                'pg_merchant_id': MERCHANT_ID,
+                'pg_merchant_id': str(MERCHANT_ID),
                 'pg_order_id': str(order.id),
                 'pg_amount': str(int(order.total_price)),
                 'pg_currency': 'KGS',
-                'pg_description': f"Аренда строительного инструмента по заказу №{order.id}",
-                'pg_salt': f"salt_order_{order.id}_secure",
-                'pg_success_url': 'https://vanilla-corny-unnerve.ngrok-free.dev/payment/success/',
-                'pg_failure_url': 'https://vanilla-corny-unnerve.ngrok-free.dev/payment/failure/',
+                'pg_description': f"Заказ №{order.id} на сайте instrumenty312.kg",
+                'pg_salt': f"salt_{order.id}_secure_key",
+                'pg_success_url': 'http://127.0.0.1:8000/payments/success/',
+                'pg_failure_url': 'http://127.0.0.1:8000/payments/failure/',
             }
+            # Подписываем параметры на сервере
             params['pg_sig'] = generate_signature(script_name, params, SECRET_KEY)
 
-            try:
-                # ВРЕМЕННЫЙ ТЕСТ: Эмулируем успешный ответ платежки без отправки запроса наружу
-                order.is_paid = True
-                order.status = 'paid'  # Будет отображаться в админке
-                order.save()
+            # Очищаем корзину сессии
+            request.session['cart'] = {}
+            request.session.modified = True
 
-                # Перенаправляем на страницу успешной оплаты
-                return redirect('payment_success')
-
-            except Exception as e:
-                return render(request, 'catalog/cart_detail.html', {
-                    'cart': cart, 'total_price': total_price,
-                    'error': f"Ошибка сохранения заказа: {str(e)}"
-                })
+            # Рендерим промежуточный шаблон, который выполнит автоматический переход
+            return render(request, 'catalog/payment_redirect.html', {
+                'url': url,
+                'params': params,
+                'order': order
+            })
 
         else:
-            # --- СЦЕНАРИЙ Б: СТАНДАРТНОЕ ОФОРМЛЕНИЕ В WHATSAPP ---
-            whatsapp_text = f"Здравствуйте! Оформил заказ на сайте PROKAT-INSTRUMENT.KG\n\nЗаказ №{order.id}\nИмя: {order.customer_name}\nТелефон: {order.customer_phone}\nИтоговая сумма: {order.total_price} сом\n\nНаш менеджер свяжется с вами."
+            # --- СЦЕНАРИЙ Б: ОФОРМЛЕНИЕ В WHATSAPP ---
+            whatsapp_text = f"Здравствуйте! Оформил заказ на сайте instrumenty312.kg\n\nЗаказ №{order.id}\nИмя: {order.customer_name}\nТелефон: {order.customer_phone}\nИтоговая сумма: {order.total_price} сом"
             whatsapp_url = f"https://wa.me/996702747714?text={urllib.parse.quote(whatsapp_text)}"
-
             request.session['cart'] = {}
             return redirect(whatsapp_url)
 
@@ -163,7 +158,6 @@ def cart_detail(request):
 
 @csrf_exempt
 def freedom_pay_result(request):
-    """Фоновый Result URL для Freedom Pay"""
     if request.method != 'POST':
         return HttpResponse("Method not allowed", status=405)
 
@@ -178,7 +172,7 @@ def freedom_pay_result(request):
         return HttpResponse("Invalid signature", status=400)
 
     order_id = data.get('pg_order_id')
-    payment_status = data.get('pg_result')  # '1' — успех, '0' — отказ
+    payment_status = data.get('pg_result')
 
     order = get_object_or_404(Order, id=order_id)
 
@@ -192,11 +186,11 @@ def freedom_pay_result(request):
         order.is_paid = True
         order.status = 'paid'
         order.save()
-        response_params['pg_description'] = "Платеж успешно обработан сайтом"
+        response_params['pg_description'] = "Платеж успешно обработан"
     else:
         order.status = 'failed'
         order.save()
-        response_params['pg_description'] = "Фиксация отмены или неуспешного платежа"
+        response_params['pg_description'] = "Платеж отклонен"
 
     response_params['pg_sig'] = generate_signature('result', response_params, SECRET_KEY)
 

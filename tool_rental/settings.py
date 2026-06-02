@@ -103,7 +103,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = False  # Если работаешь без HTTPS
+
+# Настройки платежной системы Freedom Pay (PayBox)
+FREEDOM_PAY_MERCHANT_ID = '561180'
+FREEDOM_PAY_SECRET_KEY = 'U87zFJ4AFopJPVQ'
+# Заменяем старый api.freedompay.money на рабочий системный домен:
+FREEDOM_PAY_URL = 'https://api.freedompay.kz/init_payment.php'

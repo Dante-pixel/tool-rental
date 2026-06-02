@@ -1,15 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Перенаправление на страницу оплаты...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .payment-box {
+            text-align: center;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            max-width: 400px;
+            width: 100%;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00c853;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 18px; }
+        p { color: #7f8c8d; font-size: 14px; margin: 0; }
+    </style>
+</head>
 <body>
-    <p>Перенаправление на страницу оплаты...</p>
-    <form id="payForm" method="POST" action="https://api.freedompay.kg/init_payment.php">
-        {% for key, value in params.items %}
-            <input type="hidden" name="{{ key }}" value="{{ value }}">
-        {% endfor %}
-    </form>
-    <script>
-        // Автоматически отправляем форму при загрузке страницы
-        document.getElementById('payForm').submit();
-    </script>
+
+<div class="payment-box">
+    <div class="spinner"></div>
+    <h3>Переход к оплате картой...</h3>
+    <p>Вы перенаправляетесь на защищенную страницу банка Freedom Pay. Пожалуйста, подождите.</p>
+</div>
+
+<form id="freedomPayForm" action="{{ url }}" method="POST" style="display: none;">
+    {% for key, value in params.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+</form>
+
+<script>
+    // Сабмит формы сразу после загрузки DOM дерева
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('freedomPayForm').submit();
+    });
+</script>
+
 </body>
 </html>
